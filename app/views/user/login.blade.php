@@ -6,8 +6,8 @@
 @stop
 
 @section('content')
-
-        <h1>Logn</h1>
+<div class="col-md-6 col-md-offset-3">
+        <h1>Login</h1>
 
         {{Form::open(['route' => 'postLogin'])}}
 
@@ -37,5 +37,5 @@
         </div>
 
         {{Form::close()}}
-
+</div>
 @stop

@@ -6,6 +6,8 @@
 @stop
 
 @section('content')
+
+<div class="col-md-6 col-md-offset-3">
         <h1>Register</h1>
 
         {{Form::open(['route' => 'postCreate'])}}
@@ -47,5 +49,6 @@
         </div>
 
         {{Form::close()}}
+</div>
 
 @stop
