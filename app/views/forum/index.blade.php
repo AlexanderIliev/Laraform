@@ -14,7 +14,15 @@
 @foreach($groups as $group)
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title">{{ $group->title }}</h3>
+        @if(Auth::check() && Auth::user()->isAdmin())
+            <div class="clearfix">
+                <h3 class="panel-title pull-left">{{ $group->title }}</h3>
+                <a id="add-category-{{ $group->id }}" href="#" data-toggle="modal" data-target="#category_modal" class="btn btn-success btn-xs pull-right new_category">New Category</a>
+                <a id="{{ $group->id }}" href="#" data-toggle="modal" data-target="#group_delete" class="btn btn-danger btn-xs pull-right delete_group">Delete</a>
+            </div>
+            @else
+                <h3 class="panel-title">{{ $group->title }}</h3>
+            @endif
         </div>
         <div class="panel-body panel-list-group">
         <div class="list-group">
@@ -57,6 +65,57 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="category_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">New Category</h4>
+            </div>
+            <div class="modal-body">
+            {{ Form::open(array('id' => 'category_form')) }}
+                <div class="form-group {{ ($errors->has('category_name')) ? ' has-error' : '' }}">
+                    {{ Form::label('category_name', 'Category Name: ') }}
+                    {{ Form::text('category_name', null, array('class' => 'form-control', 'id' => 'category_name')) }}
+                    @if($errors->has('category_name'))
+                        <p>{{ $errors->first('category_name') }}</p>
+                    @endif
+                </div>
+            {{ Form::close() }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="category_submit">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="group_delete" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">Delete Group</h4>
+            </div>
+            <div class="modal-body">
+                <h3>Are you sure you want to delete this group ?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a href="#" type="button" class="btn btn-primary" id="btn_delete_group">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endif
 
 @stop
@@ -68,5 +127,12 @@
 		<script type="text/javascript">
 			$("{{ Session::get('modal') }}").modal('show');
 		</script>
+	@endif
+
+	@if(Session::has('category-modal') && Session::has('group-id'))
+	    <script type="text/javascript">
+	        $("#category_form").prop('action', "/forum/category/{{ Session::get('group-id') }}/new");
+	        $("{{ Session::get('category-modal') }}").modal('show');
+	    </script>
 	@endif
 @stop
