@@ -12,4 +12,16 @@
         <hr>
         <p>{{ nl2br(BBCode::parse($thread->body)) }}</p>
     </div>
+
+@foreach($comments as $comment)
+    <div class="well">
+        <h4>By: {{ $comment->author_id }} on {{ $comment->created_at }}</h4>
+        <hr>
+        <p>{{ nl2br(BBCode::parse($comment->body)) }}</p>
+    </div>
+@endforeach
+
+    <div>
+        <a href="{{ URL::route('forum-get-new-comment', $thread->id) }}" class="btn btn-primary btn-sm pull-left">Add Comment</a>
+    </div>
 @stop

@@ -25,14 +25,17 @@ class ForumController extends BaseController
     public function thread($id)
     {
         $thread = ForumThread::find($id);
+        $comments = $thread->comments()->get();
+
         if($thread == null)
         {
             return Redirect::route('forum-home')->with('fail', "That thread doesn't exist.");
         }
         $author = $thread->author()->first()->username;
 
-        return View::make('forum.thread')->with('thread', $thread)->with('author', $author);
+        return View::make('forum.thread')->with('thread', $thread)->with('author', $author)->with('comments', $comments);
     }
+
 
     public function storeGroup()
     {
@@ -206,5 +209,47 @@ class ForumController extends BaseController
             }
         }
     }
+
+    public function newThreadComment($id)
+    {
+        return View::make('forum.addcomment')->with('id', $id);
+    }
+
+    public function storeThreadComment($id)
+    {
+        $thread = ForumThread::find($id);
+
+        if($thread == null)
+            Redirect::route('forum-get-new-comment')->with('fail', "You posted to an invalid thread.");
+
+        $validator = Validator::make(Input::all(), array(
+            'body' => 'required|min:3|max:65000'
+        ));
+
+        if($validator->fails())
+        {
+            return Redirect::route('forum-get-new-comment', $id)->withInput()->withErrors($validator)->with('fail', "Your Input doesn't match the requirements!");
+        }
+        else
+        {
+            $comment = new ForumComment;
+            $comment->body = Input::get('body');
+            $comment->thread_id = $id;
+            $comment->category_id = $thread->category_id;
+            $comment->group_id = $thread->group_id;
+            $comment->author_id = Auth::user()->id;
+
+            if($comment->save())
+            {
+                return Redirect::route('forum-thread', $thread->id)->with('success', "Your comment has been added.");
+            }
+            else
+            {
+                return Redirect::route('forum-get-new-comment', $id)->with('fail', "An error occured while adding your comment")->withInput();
+            }
+
+        }
+    }
+
 
 }
